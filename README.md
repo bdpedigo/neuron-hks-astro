@@ -1,4 +1,4 @@
-# Academic project page template
+# Academic project page template - Astro version
 
 This is a template to help you build a professional project page for your research paper, based on the design from the original [Nerfies page](https://nerfies.github.io/). Instead of manually editing an HTML file, you can author the page's content in Markdown and make use of a polished set of components, then deploy it with GitHub Pages. [See a live demo of the template](https://research-template.roman.technology).
 
