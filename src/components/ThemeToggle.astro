@@ -1,0 +1,99 @@
+---
+interface Props {
+  initialTheme: "device" | "light" | "dark";
+}
+const { initialTheme } = Astro.props;
+---
+
+<div
+  id="theme-toggle"
+  class="fixed bottom-5 right-5 z-50 flex gap-1 rounded-full border border-zinc-200 bg-white p-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+  aria-label="Color theme"
+>
+  <button
+    data-theme-value="light"
+    title="Light mode"
+    class="theme-btn flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+    aria-pressed="false"
+  >
+    <!-- Sun icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="4"/>
+      <line x1="12" y1="20" x2="12" y2="22"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="2" y1="12" x2="4" y2="12"/>
+      <line x1="20" y1="12" x2="22" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+  </button>
+
+  <button
+    data-theme-value="device"
+    title="System theme"
+    class="theme-btn flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+    aria-pressed="false"
+  >
+    <!-- Monitor icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <line x1="8" y1="21" x2="16" y2="21"/>
+      <line x1="12" y1="17" x2="12" y2="21"/>
+    </svg>
+  </button>
+
+  <button
+    data-theme-value="dark"
+    title="Dark mode"
+    class="theme-btn flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+    aria-pressed="false"
+  >
+    <!-- Moon icon -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
+</div>
+
+<style>
+  .theme-btn[aria-pressed="true"] {
+    background-color: rgb(228 228 231); /* zinc-200 */
+    color: rgb(24 24 27); /* zinc-900 */
+  }
+  :global([data-theme="dark"]) .theme-btn[aria-pressed="true"] {
+    background-color: rgb(63 63 70); /* zinc-600 */
+    color: rgb(244 244 245); /* zinc-100 */
+  }
+  @media (prefers-color-scheme: dark) {
+    :global([data-theme="device"]) .theme-btn[aria-pressed="true"] {
+      background-color: rgb(63 63 70); /* zinc-600 */
+      color: rgb(244 244 245); /* zinc-100 */
+    }
+  }
+</style>
+
+<script define:vars={{ initialTheme }}>
+  const html = document.documentElement;
+  const buttons = document.querySelectorAll(".theme-btn");
+
+  function setTheme(theme) {
+    html.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+    buttons.forEach((btn) => {
+      btn.setAttribute(
+        "aria-pressed",
+        btn.dataset.themeValue === theme ? "true" : "false"
+      );
+    });
+  }
+
+  // Restore from localStorage or use frontmatter default
+  const saved = localStorage.getItem("theme");
+  setTheme(saved || initialTheme);
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => setTheme(btn.dataset.themeValue));
+  });
+</script>

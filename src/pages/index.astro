@@ -7,11 +7,14 @@ import Notes from "../components/Notes.astro";
 import type { Author, Note, Link } from "../types/types";
 
 import Table from "../components/Table.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
 
 import "../styles/global.css";
 import "katex/dist/katex-swap.css";
 
 import { Content, frontmatter } from "../paper.mdx";
+
+const allAssets = import.meta.glob('../assets/*.{png,jpg,jpeg,gif,webp,svg}', { eager: true });
 
 interface Frontmatter {
   title: string;
@@ -23,6 +26,7 @@ interface Frontmatter {
   favicon: string;
   thumbnail?: string;
   theme?: "device" | "light" | "dark";
+  headerBackground?: string;
 }
 
 const {
@@ -35,7 +39,12 @@ const {
   favicon,
   thumbnail,
   theme = "device",
+  headerBackground,
 } = frontmatter as Frontmatter;
+
+const headerBgImage = headerBackground
+  ? (allAssets[`../assets/${headerBackground}`] as any)?.default
+  : undefined;
 
 const baseUrl = import.meta.env.BASE_URL;
 const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
@@ -66,15 +75,24 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
   <body
     class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-500 prose-a:dark:text-blue-300 prose-a:no-underline prose-a:hover:underline prose-a:font-normal prose-code:bg-zinc-200 prose-code:dark:bg-zinc-800 prose-code:text-zinc-800 prose-code:dark:text-zinc-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-medium prose-code:before:content-none prose-code:after:content-none max-w-none pt-16 pb-6 font-(family-name:--font-noto-sans)"
   >
-    <header class="mx-auto mb-12 max-w-[50rem] px-6 text-center">
-      <h1 class="text-5xl font-medium">{title}</h1>
-      <div class="flex flex-col items-center gap-6">
-        <Authors authors={authors} />
-        {conference && <div>{conference}</div>}
-        {notes && <Notes notes={notes} />}
-        {links && <Links links={links} />}
+    <header class="relative mb-12 overflow-hidden">
+      {headerBgImage && (
+        <div
+          class="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-15"
+          style={`background-image: url(${headerBgImage.src})`}
+        ></div>
+      )}
+      <div class="relative mx-auto max-w-[50rem] px-6 py-12 text-center">
+        <h1 class="text-5xl font-medium">{title}</h1>
+        <div class="flex flex-col items-center gap-6">
+          <Authors authors={authors} />
+          {conference && <div>{conference}</div>}
+          {notes && <Notes notes={notes} />}
+          {links && <Links links={links} />}
+        </div>
       </div>
     </header>
+    <ThemeToggle initialTheme={theme} />
     <main>
       <Content components={{ table: Table }} />
     </main>

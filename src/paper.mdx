@@ -9,10 +9,8 @@ authors:
     institution: Allen Institute
   - name: Rachael Swanstrom
     institution: Allen Institute
-    notes: ["*"]
   - name: Erika Neace
     institution: Allen Institute
-    notes: ["*"]
   - name: Sven Dorkenwald
     institution: Allen Institute, MIT
   - name: Nuno Maçarico da Costa
@@ -22,26 +20,30 @@ authors:
   - name: Forrest Collman
     institution: Allen Institute
     notes: ["*"]
-conference: bioRxiv 2026
+conference: bioRxiv, 2026
 notes:
   - symbol: "*"
     text: "Correspondence: ben.pedigo@alleninstitute.org, forrestc@alleninstitute.org"
 links:
   - name: Paper
     url: https://www.biorxiv.org/content/10.64898/2026.02.19.706834
-    icon: ri:file-pdf-2-line
-  - name: meshmash
+    icon: ri:file-text-line
+  - name: Pipeline Code
     url: https://github.com/bdpedigo/meshmash
     icon: ri:github-line
-  - name: Experiments
+  - name: Cloud Deployment
+    url: https://github.com/bdpedigo/cloud-mesh
+    icon: ri:github-line
+  - name: Paper Code (coming soon)
     url: https://github.com/bdpedigo/ssa-experiments
     icon: ri:github-line
-  - name: Cloud deployment
-    url: https://github.com/bdpedigo/ssa-cloud
-    icon: ri:github-line
+  - name: Model
+    url: https://huggingface.co/bdpedigo/synapse_target_hks_rf
+    icon: simple-icons:huggingface
 
 theme: device
 favicon: favicon.svg
+headerBackground: cell-gallery.png
 description: "A cost-efficient computational pipeline for classifying postsynaptic targets and segmenting spines across 208 million synapses in the MICrONS mouse visual cortex dataset, using mesh-based heat kernel signatures."
 ---
 
@@ -130,11 +132,15 @@ All postsynaptic target predictions are publicly available via the [MICrONS CAVE
 ## BibTeX
 
 ```bibtex
-@article{pedigo2026census,
-  author  = {Pedigo, Benjamin D. and Danskin, Bethanny P. and Swanstrom, Rachael and Neace, Erika and Dorkenwald, Sven and {Ma\c{c}arico da Costa}, Nuno and Schneider-Mizell, Casey M. and Collman, Forrest},
-  title   = {A quantitative census of millions of postsynaptic structures in a large electron microscopy volume of mouse visual cortex},
-  journal = {bioRxiv},
-  year    = {2026},
-  doi     = {10.64898/2026.02.19.706834},
+@article {pedigo_quantitative_2026,
+	author = {Pedigo, Benjamin D. and Danskin, Bethanny P. and Swanstrom, Rachael and Neace, Erika and Dorkenwald, Sven and da Costa, Nuno Ma{\c c}arico and Schneider-Mizell, Casey M. and Collman, Forrest},
+	title = {A quantitative census of millions of postsynaptic structures in a large electron microscopy volume of mouse visual cortex},
+	elocation-id = {2026.02.19.706834},
+	year = {2026},
+	doi = {10.64898/2026.02.19.706834},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/early/2026/02/20/2026.02.19.706834},
+	eprint = {https://www.biorxiv.org/content/early/2026/02/20/2026.02.19.706834.full.pdf},
+	journal = {bioRxiv}
 }
 ```
