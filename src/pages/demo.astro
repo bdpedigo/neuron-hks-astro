@@ -1,0 +1,79 @@
+---
+import { Font } from "astro:assets";
+import ThemeToggle from "../components/ThemeToggle.astro";
+import { MeshDemo } from "../components/MeshDemo";
+import "../styles/global.css";
+
+const baseUrl = import.meta.env.BASE_URL;
+const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+---
+
+<!doctype html>
+<html class="bg-white dark:bg-zinc-900" lang="en" data-theme="device">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="Upload a triangular mesh and preview it in 3D. A demo for the meshmash Heat Kernel Signature pipeline."
+    />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href={`${prefix}favicon.svg`} />
+    <Font
+      cssVariable="--font-noto-sans"
+      preload={[{ subset: "latin", style: "normal" }]}
+    />
+    <title>Mesh HKS Demo — meshmash</title>
+  </head>
+  <body
+    class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-500 prose-a:dark:text-blue-300 prose-a:no-underline prose-a:hover:underline prose-a:font-normal prose-code:bg-zinc-200 prose-code:dark:bg-zinc-800 prose-code:text-zinc-800 prose-code:dark:text-zinc-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-medium prose-code:before:content-none prose-code:after:content-none max-w-none pt-16 pb-6 font-(family-name:--font-noto-sans)"
+  >
+    <ThemeToggle initialTheme="device" />
+
+    <main>
+      <header class="mb-8">
+        <a
+          href={prefix}
+          class="not-prose text-sm text-zinc-500 transition-colors hover:text-zinc-700 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
+          ← Back to paper
+        </a>
+        <h1 class="mt-4">Mesh HKS Demo</h1>
+        <p class="lead text-zinc-600 dark:text-zinc-400">
+          Upload any triangular mesh to preview it in 3D. Once the backend is
+          live, clicking <strong>Compute HKS</strong> will run the <a
+            href="https://github.com/bdpedigo/meshmash"
+            ><code>condensed_hks_pipeline</code></a
+          > from <a href="https://github.com/bdpedigo/meshmash">meshmash</a> on
+          your mesh and colour each vertex by its Heat Kernel Signature value.
+        </p>
+      </header>
+
+      <MeshDemo apiUrl={import.meta.env.PUBLIC_HKS_API_URL ?? ""} client:load />
+
+      <section class="mt-10">
+        <h2>Supported formats</h2>
+        <p>
+          Any triangular surface mesh in <code>.ply</code>, <code>.obj</code>,
+          <code>.stl</code>, <code>.gltf</code>, or <code>.glb</code> format.
+          Drag-and-drop onto the viewer or use the <em>Upload mesh</em> button.
+          Large meshes (&gt;200 k vertices) may take a few seconds to load
+          depending on your device.
+        </p>
+
+        <h2>What is HKS?</h2>
+        <p>
+          The Heat Kernel Signature characterises each vertex of a mesh by how
+          heat diffuses from that point across the surface. A vertex on a narrow
+          spine "traps" heat and dissipates slowly, while one on a broad
+          dendritic shaft lets heat spread quickly—producing a distinctive
+          fingerprint across a range of diffusion timescales. A random forest
+          trained on 32-dimensional HKS vectors achieves a weighted F1 of
+          <strong>0.961</strong> classifying synapses as soma, shaft, or spine
+          across 208 million synapses in the MICrONS mouse visual cortex
+          dataset. See the <a href={prefix}>paper</a> for full details.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
