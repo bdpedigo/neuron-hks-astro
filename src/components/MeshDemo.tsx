@@ -137,32 +137,41 @@ function applyFeatureColors(
 }
 
 // ---------------------------------------------------------------------------
-// Discrete palette for prediction class indices
+// Label-keyed color palette for predictions
 // ---------------------------------------------------------------------------
 
-const PREDICTION_PALETTE: { rgb: [number, number, number]; css: string }[] = [
-  { rgb: [107 / 255, 114 / 255, 128 / 255], css: "#6b7280" }, // gray  — index 0
-  { rgb: [249 / 255, 115 / 255, 22 / 255], css: "#f97316" },  // orange — index 1
-  { rgb: [59 / 255, 130 / 255, 246 / 255], css: "#3b82f6" },  // blue   — index 2
-  { rgb: [34 / 255, 197 / 255, 94 / 255], css: "#22c55e" },   // green  — index 3
-  { rgb: [168 / 255, 85 / 255, 247 / 255], css: "#a855f7" },  // purple — index 4
-];
+const DEFAULT_LABEL_COLORS: Record<string, string> = {
+  soma: "#00beff",
+  shaft: "#ddb310",
+  not_spine: "#ddb310",
+  spine: "#fb49b0",
+  single_spine: "#fb49b0",
+  multi_spine: "#9113cc",
+  unknown: "#646464",
+};
+
+const FALLBACK_COLOR = "#646464";
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.replace("#", ""), 16);
+  return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
+}
 
 function applyPredictionColors(
   group: THREE.Group,
   labels: Int8Array,
   nVerts: number,
+  classes: string[],
+  colorMap: Record<string, string>,
 ) {
   const colors = new Float32Array(nVerts * 3);
   for (let i = 0; i < nVerts; i++) {
     const idx = labels[i];
-    const entry =
-      idx >= 0 && idx < PREDICTION_PALETTE.length
-        ? PREDICTION_PALETTE[idx]
-        : PREDICTION_PALETTE[0];
-    colors[3 * i] = entry.rgb[0];
-    colors[3 * i + 1] = entry.rgb[1];
-    colors[3 * i + 2] = entry.rgb[2];
+    const label = idx >= 0 && idx < classes.length ? classes[idx] : "unknown";
+    const [r, g, b] = hexToRgb(colorMap[label] ?? FALLBACK_COLOR);
+    colors[3 * i] = r;
+    colors[3 * i + 1] = g;
+    colors[3 * i + 2] = b;
   }
   group.traverse((child) => {
     if (child instanceof THREE.Mesh) {
@@ -224,6 +233,8 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
   const [isComputing, setIsComputing] = useState(false);
   const [predictionsData, setPredictionsData] = useState<PredictionsData | null>(null);
   const [colorMode, setColorMode] = useState<ColorMode>("hks");
+  const [classColors, setClassColors] = useState<Record<string, string>>(DEFAULT_LABEL_COLORS);
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   // -------------------------------------------------------------------------
   // Three.js initialisation
@@ -486,6 +497,15 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
           classes: data.classes,
           nVerts,
         });
+        setClassColors((prev) => {
+          const merged = { ...prev };
+          for (const cls of data.classes!) {
+            if (!(cls in merged)) {
+              merged[cls] = DEFAULT_LABEL_COLORS[cls] ?? FALLBACK_COLOR;
+            }
+          }
+          return merged;
+        });
       } else {
         setPredictionsData(null);
       }
@@ -510,6 +530,8 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
         threeRef.current.meshGroup,
         predictionsData.labels,
         predictionsData.nVerts,
+        predictionsData.classes,
+        classColors,
       );
     } else if (hksData) {
       applyFeatureColors(
@@ -520,7 +542,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
         selectedFeature,
       );
     }
-  }, [colorMode, selectedFeature, hksData, predictionsData]);
+  }, [colorMode, selectedFeature, hksData, predictionsData, classColors]);
 
   // -------------------------------------------------------------------------
   // Render
@@ -670,20 +692,38 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
             </button>
           </div>
           {colorMode === "predictions" && (
-            <div className="flex items-center gap-3 text-sm text-zinc-400">
-              {predictionsData.classes.map((cls, i) => (
-                <span key={i} className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-zinc-400">
+              {predictionsData.classes.map((cls) => (
+                <span key={cls} className="flex items-center gap-1.5">
                   <span
                     className="inline-block h-3 w-3 flex-shrink-0 rounded-sm"
-                    style={{
-                      backgroundColor:
-                        i < PREDICTION_PALETTE.length
-                          ? PREDICTION_PALETTE[i].css
-                          : "#888",
-                    }}
+                    style={{ backgroundColor: classColors[cls] ?? FALLBACK_COLOR }}
                   />
                   {cls}
                 </span>
+              ))}
+              <button
+                onClick={() => setShowColorPicker((v) => !v)}
+                className="ml-1 rounded px-2 py-0.5 text-xs text-zinc-500 transition-colors hover:bg-zinc-700 hover:text-zinc-300"
+              >
+                {showColorPicker ? "Hide colors" : "Customize colors"}
+              </button>
+            </div>
+          )}
+          {colorMode === "predictions" && showColorPicker && (
+            <div className="flex flex-wrap gap-3 rounded-md border border-zinc-700 bg-zinc-800/50 p-3">
+              {predictionsData.classes.map((cls) => (
+                <label key={cls} className="flex cursor-pointer items-center gap-1.5 text-sm text-zinc-300">
+                  <input
+                    type="color"
+                    value={classColors[cls] ?? FALLBACK_COLOR}
+                    onChange={(e) =>
+                      setClassColors((prev) => ({ ...prev, [cls]: e.target.value }))
+                    }
+                    className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent p-0"
+                  />
+                  {cls}
+                </label>
               ))}
             </div>
           )}
