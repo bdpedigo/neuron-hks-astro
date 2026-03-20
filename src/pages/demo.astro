@@ -40,12 +40,11 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         </a>
         <h1 class="mt-4">Mesh HKS Demo</h1>
         <p class="lead text-zinc-600 dark:text-zinc-400">
-          Upload any triangular mesh to preview it in 3D. Once the backend is
-          live, clicking <strong>Compute HKS</strong> will run the <a
+          Upload any triangular mesh to preview it in 3D. Clicking <strong>Compute HKS</strong> will run the <a
             href="https://github.com/bdpedigo/meshmash"
             ><code>condensed_hks_pipeline</code></a
           > from <a href="https://github.com/bdpedigo/meshmash">meshmash</a> on
-          your mesh and colour each vertex by its Heat Kernel Signature value.
+          your mesh and colour each vertex by its Heat Kernel Signature value or predictions from the HKS-based classifier.
         </p>
       </header>
 
