@@ -719,25 +719,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
               onChange={handleFileInput}
             />
           </label>
-        ) : (
-          <>
-            <input
-              type="text"
-              placeholder="cloud_path (e.g. graphene://https://…)"
-              value={cloudPath}
-              onChange={(e) => setCloudPath(e.target.value)}
-              className="min-w-0 flex-1 rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-            />
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="root_id"
-              value={rootId}
-              onChange={(e) => setRootId(e.target.value.replace(/\D/g, ""))}
-              className="w-36 rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-            />
-          </>
-        )}
+        ) : null}
 
         <span className={`truncate text-sm ${msgColour}`}>{statusMsg}</span>
 
@@ -780,7 +762,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
                     ? "Computing…"
                     : "Fetch mesh from CloudVolume and run condensed_hks_pipeline"
             }
-            className={`ml-auto rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               cloudPath && rootId && !isComputing && apiUrl
                 ? "cursor-pointer bg-green-600 text-white hover:bg-green-500"
                 : "cursor-not-allowed bg-zinc-700 text-zinc-500"
@@ -795,6 +777,27 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
           </button>
         )}
       </div>
+
+      {/* CloudVolume inputs — shown below controls row in cloudvolume mode */}
+      {inputMode === "cloudvolume" && (
+        <div className="flex flex-col gap-2">
+          <input
+            type="text"
+            placeholder="Cloud path (e.g. graphene://https://…)"
+            value={cloudPath}
+            onChange={(e) => setCloudPath(e.target.value)}
+            className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="Root ID"
+            value={rootId}
+            onChange={(e) => setRootId(e.target.value.replace(/\D/g, ""))}
+            className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+          />
+        </div>
+      )}
 
       {/* HKS feature slider — visible in HKS mode after a successful compute */}
       {hksData && colorMode === "hks" && (
