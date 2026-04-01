@@ -263,8 +263,8 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
   const [classColors, setClassColors] = useState<Record<string, string>>(DEFAULT_LABEL_COLORS);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [inputMode, setInputMode] = useState<"upload" | "cloudvolume">("upload");
-  const [cloudPath, setCloudPath] = useState("");
-  const [rootId, setRootId] = useState("");
+  const [cloudPath, setCloudPath] = useState("precomputed://gs://iarpa_microns/minnie/minnie65/seg_m1300");
+  const [rootId, setRootId] = useState("864691135307555142");
 
   // -------------------------------------------------------------------------
   // Three.js initialisation
@@ -599,7 +599,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           cloud_path: cloudPath,
-          root_id: parseInt(rootId, 10),
+          root_id: rootId,
           include_predictions: true,
         }),
       });
