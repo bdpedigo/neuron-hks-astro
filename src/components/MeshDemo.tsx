@@ -936,7 +936,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
                   : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
               }`}
             >
-              Synapse prediction
+              Compartment predictions
             </button>
           </div>
           {colorMode === "predictions" && (
