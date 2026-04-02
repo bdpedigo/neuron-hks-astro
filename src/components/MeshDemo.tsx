@@ -613,7 +613,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
 
     try {
       await wakeBackend(apiUrl, setStatusMsg);
-      setStatusMsg(`Fetching mesh from CloudVolume…`);
+      setStatusMsg(`Running pipeline… this may take a moment`);
       const resp = await fetch(`${apiUrl}/compute-hks-from-cloudvolume`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -813,7 +813,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
                     ? "Computing…"
                     : "Fetch mesh from CloudVolume and run condensed_hks_pipeline"
             }
-            className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+            className={`ml-auto rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               cloudPath && rootId && !isComputing && apiUrl
                 ? "cursor-pointer bg-green-600 text-white hover:bg-green-500"
                 : "cursor-not-allowed bg-zinc-700 text-zinc-500"
@@ -833,7 +833,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
       {inputMode === "cloudvolume" && (
         <div className="flex flex-col gap-3">
           <p className="text-sm text-zinc-400">
-            The cloud path should be a publicly accessible Google Cloud Storage bucket that can be
+            The cloud path should be a publicly accessible cloud storage bucket that can be
             read by Neuroglancer (e.g.{" "}
             <span className="font-mono text-zinc-300">precomputed://gs://bucket/path</span>).
           </p>

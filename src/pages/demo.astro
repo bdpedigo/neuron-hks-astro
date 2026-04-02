@@ -40,38 +40,46 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         </a>
         <h1 class="mt-4">Mesh HKS Demo</h1>
         <p class="lead text-zinc-600 dark:text-zinc-400">
-          Upload any triangular mesh to preview it in 3D. Clicking <strong>Compute HKS</strong> will run the <a
-            href="https://github.com/bdpedigo/meshmash"
-            ><code>condensed_hks_pipeline</code></a
+          Try out the heat kernel signature (HKS) pipeline on your data! Either input a cloud path to a mesh source or drag-and-drop a mesh file onto the viewer.
+          
+          Clicking <strong>Compute HKS</strong> will run the <a
+            href="https://bdpedigo.github.io/meshmash/reference/#meshmash.pipeline.condensed_hks_pipeline"
+            ><code class="!text-blue-500 dark:!text-blue-300">condensed_hks_pipeline</code></a
           > from <a href="https://github.com/bdpedigo/meshmash">meshmash</a> on
           your mesh and colour each vertex by its Heat Kernel Signature value or predictions from the HKS-based classifier.
+        
         </p>
       </header>
 
       <MeshDemo apiUrl={import.meta.env.PUBLIC_HKS_API_URL ?? ""} client:load />
 
       <section class="mt-10">
-        <h2>Supported formats</h2>
-        <p>
-          Any triangular surface mesh in <code>.ply</code>, <code>.obj</code>,
-          <code>.stl</code>, <code>.gltf</code>, or <code>.glb</code> format.
-          Drag-and-drop onto the viewer or use the <em>Upload mesh</em> button.
-          Large meshes (&gt;200 k vertices) may take a few seconds to load
-          depending on your device.
-        </p>
-
-        <h2>What is HKS?</h2>
-        <p>
-          The Heat Kernel Signature characterises each vertex of a mesh by how
-          heat diffuses from that point across the surface. A vertex on a narrow
-          spine "traps" heat and dissipates slowly, while one on a broad
-          dendritic shaft lets heat spread quickly—producing a distinctive
-          fingerprint across a range of diffusion timescales. A random forest
-          trained on 32-dimensional HKS vectors achieves a weighted F1 of
-          <strong>0.961</strong> classifying synapses as soma, shaft, or spine
-          across 208 million synapses in the MICrONS mouse visual cortex
-          dataset. See the <a href={prefix}>paper</a> for full details.
-        </p>
+        <h2>Considerations</h2>
+        <ul>
+          <li>
+            If running on a large object, this demo will run on a randomly chosen small
+            fragment of that object to keep IO and compute time reasonable. However, the underlying
+            pipeline can be run on larger objects.
+          </li>
+          <li>
+            Many pipelines generate mesh fragments, and the details of how these
+            are stitched together are important to create a (roughly) topologically
+            correct representation of the object's surface.
+          </li>
+          <li>
+            If uploading your own mesh, meshes should have units of nanometers. Meshes in <code>.ply</code>, <code>.obj</code>,
+            <code>.stl</code>, <code>.gltf</code>, or <code>.glb</code> format should work.
+            Drag-and-drop onto the viewer or use the <em>Upload mesh</em> button.
+          </li>
+          <li>
+            Having issues? <a
+              href="https://github.com/bdpedigo/neuron-hks/issues/new"
+              >Open an issue</a
+            > or get in touch at <a href="mailto:ben.pedigo@alleninstitute.org"
+              >ben.pedigo@alleninstitute.org</a
+            >.
+          </li>
+        </ul>
       </section>
     </main>
   </body>
