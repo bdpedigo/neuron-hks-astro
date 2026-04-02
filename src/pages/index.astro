@@ -73,16 +73,16 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
     <title>{title}</title>
   </head>
   <body
-    class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-500 prose-a:dark:text-blue-300 prose-a:no-underline prose-a:hover:underline prose-a:font-normal prose-code:bg-zinc-200 prose-code:dark:bg-zinc-800 prose-code:text-zinc-800 prose-code:dark:text-zinc-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-medium prose-code:before:content-none prose-code:after:content-none max-w-none pt-16 pb-6 font-(family-name:--font-noto-sans)"
+    class="prose prose-lg prose-zinc dark:prose-invert prose-a:text-blue-500 prose-a:dark:text-blue-300 prose-a:no-underline prose-a:hover:underline prose-a:font-normal prose-code:bg-zinc-200 prose-code:dark:bg-zinc-800 prose-code:text-zinc-800 prose-code:dark:text-zinc-200 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:font-medium prose-code:before:content-none prose-code:after:content-none max-w-none pb-6 font-(family-name:--font-noto-sans)"
   >
-    <header class="relative mb-12 overflow-hidden">
+    <header class="relative overflow-hidden">
       {headerBgImage && (
         <div
-          class="absolute inset-0 bg-cover bg-center opacity-10 dark:opacity-15"
-          style={`background-image: url(${headerBgImage.src})`}
+          class="absolute inset-0 opacity-20 dark:opacity-20"
+          style={`background-image: url(${headerBgImage.src}); background-size: 200%; background-position: center;`}
         ></div>
       )}
-      <div class="relative mx-auto max-w-[50rem] px-6 py-12 text-center">
+      <div class="relative mx-auto max-w-[50rem] px-6 pt-16 pb-12 text-center">
         <h1 class="text-5xl font-medium">{title}</h1>
         <div class="flex flex-col items-center gap-6">
           <Authors authors={authors} />
