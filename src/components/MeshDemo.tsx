@@ -258,7 +258,7 @@ const DATASTACK_PRESETS = [
     label: "H01",
     cloudPath: "precomputed://gs://h01-release/data/20210601/c3",
     rootId: "664288036",
-    position: "",
+    position: "2670728, 520128, 20328",
   },
 ];
 
