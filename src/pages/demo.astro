@@ -57,9 +57,11 @@ const prefix = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
         <h2>Considerations</h2>
         <ul>
           <li>
-            If running on a large object, this demo will run on a randomly chosen small
-            fragment of that object to keep IO and compute time reasonable. However, the underlying
-            pipeline can be run on larger objects.
+            If running on a large object, this demo will run on a small
+            fragment of that object to keep IO and compute time reasonable.
+            The pipeline will use the cursor position to select the nearest point on 
+            the object in neuroglancer link mode, or a random point if no cursor is 
+            provided. The underlying pipeline can be run on larger objects using the Python code.
           </li>
           <li>
             Many pipelines generate mesh fragments, and the details of how these

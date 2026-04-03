@@ -239,6 +239,8 @@ interface PredictionsData {
 
 type ColorMode = "hks" | "predictions";
 
+type InputMode = "upload" | "cloudvolume" | "neuroglancer";
+
 // ---------------------------------------------------------------------------
 // Datastack presets
 // ---------------------------------------------------------------------------
@@ -249,12 +251,14 @@ const DATASTACK_PRESETS = [
     label: "MICrONS",
     cloudPath: "precomputed://gs://iarpa_microns/minnie/minnie65/seg_m1300",
     rootId: "864691135307555142",
+    position: "927092, 778880, 649120",
   },
   {
     key: "h01",
     label: "H01",
     cloudPath: "precomputed://gs://h01-release/data/20210601/c3",
     rootId: "664288036",
+    position: "",
   },
 ];
 
@@ -270,7 +274,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
 
   const [statusKind, setStatusKind] = useState<StatusKind>("idle");
   const [statusMsg, setStatusMsg] = useState(
-    "Enter a cloud path and root ID, then click Compute HKS",
+    "Enter a cloud path and segment ID, then click Compute HKS",
   );
   const [isDragging, setIsDragging] = useState(false);
   const [currentFile, setCurrentFile] = useState<File | null>(null);
@@ -281,10 +285,12 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
   const [colorMode, setColorMode] = useState<ColorMode>("hks");
   const [classColors, setClassColors] = useState<Record<string, string>>(DEFAULT_LABEL_COLORS);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [inputMode, setInputMode] = useState<"upload" | "cloudvolume">("cloudvolume");
+  const [inputMode, setInputMode] = useState<InputMode>("cloudvolume");
   const [cloudPath, setCloudPath] = useState("precomputed://gs://iarpa_microns/minnie/minnie65/seg_m1300");
   const [rootId, setRootId] = useState("864691135307555142");
   const [selectedPreset, setSelectedPreset] = useState("microns");
+  const [cloudPosition, setCloudPosition] = useState("927092, 778880, 649120");
+  const [nglLink, setNglLink] = useState("");
 
   // -------------------------------------------------------------------------
   // Three.js initialisation
@@ -551,8 +557,9 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
 
       const newHksData: HksData = { hks, nVerts, nFeatures };
       setHksData(newHksData);
-      setSelectedFeature(0);
-      applyFeatureColors(ctx.meshGroup, hks, nVerts, nFeatures, 0);
+      const midFeature = Math.floor(nFeatures / 2);
+      setSelectedFeature(midFeature);
+      applyFeatureColors(ctx.meshGroup, hks, nVerts, nFeatures, midFeature);
 
       if (data.predictions && data.classes) {
         setPredictionsData({
@@ -637,6 +644,9 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
           cloud_path: cloudPath,
           root_id: rootId,
           include_predictions: true,
+          position: cloudPosition.trim()
+            ? cloudPosition.split(",").map((s) => parseFloat(s.trim()))
+            : null,
         }),
       });
       if (!resp.ok) {
@@ -652,6 +662,42 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
       setIsComputing(false);
     }
   }, [apiUrl, cloudPath, rootId, applyHksResponse]);
+
+  const computeHksFromNeuroglancer = useCallback(async () => {
+    if (!nglLink || !apiUrl) return;
+    const ctx = threeRef.current;
+    if (!ctx) return;
+
+    setIsComputing(true);
+    setStatusKind("loading");
+    setStatusMsg("Waking up backend…");
+    setColorMode("hks");
+    setPredictionsData(null);
+
+    try {
+      await wakeBackend(apiUrl, setStatusMsg);
+      setStatusMsg("Parsing link and running pipeline… this may take a moment");
+      const resp = await fetch(`${apiUrl}/compute-hks-from-neuroglancer`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          link: nglLink,
+          include_predictions: true,
+        }),
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+        throw new Error((err as { detail?: string }).detail ?? resp.statusText);
+      }
+      const data = await resp.json();
+      applyHksResponse(data, ctx);
+    } catch (err) {
+      setStatusKind("error");
+      setStatusMsg(`Compute HKS failed: ${(err as Error).message}`);
+    } finally {
+      setIsComputing(false);
+    }
+  }, [apiUrl, nglLink, applyHksResponse]);
 
   // Re-colour whenever the selected feature or color mode changes
   useEffect(() => {
@@ -686,7 +732,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
         ? "text-zinc-400"
         : "text-zinc-500";
 
-  const switchMode = (mode: "upload" | "cloudvolume") => {
+  const switchMode = (mode: InputMode) => {
     if (mode === inputMode) return;
     setInputMode(mode);
     setCurrentFile(null);
@@ -696,7 +742,9 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
     setStatusMsg(
       mode === "upload"
         ? "Drop a mesh file here, or click Upload"
-        : "Enter a cloud path and root ID, then click Compute HKS",
+        : mode === "neuroglancer"
+          ? "Paste a Neuroglancer link, then click Compute HKS"
+          : "Enter a cloud path and segment ID, then click Compute HKS",
     );
   };
 
@@ -713,6 +761,16 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
           }`}
         >
           Cloud path
+        </button>
+        <button
+          onClick={() => switchMode("neuroglancer")}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            inputMode === "neuroglancer"
+              ? "bg-blue-600 text-white"
+              : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+          }`}
+        >
+          Neuroglancer link
         </button>
         <button
           onClick={() => switchMode("upload")}
@@ -816,7 +874,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
               </span>
             )}
           </button>
-        ) : (
+        ) : inputMode === "cloudvolume" ? (
           <button
             onClick={computeHksFromCloud}
             disabled={!cloudPath || !rootId || isComputing || !apiUrl}
@@ -824,7 +882,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
               !apiUrl
                 ? "No backend configured (PUBLIC_HKS_API_URL not set)"
                 : !cloudPath || !rootId
-                  ? "Enter a cloud path and root ID first"
+                  ? "Enter a cloud path and segment ID first"
                   : isComputing
                     ? "Computing…"
                     : "Fetch mesh from CloudVolume and run condensed_hks_pipeline"
@@ -842,17 +900,56 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
               </span>
             )}
           </button>
+        ) : (
+          <button
+            onClick={computeHksFromNeuroglancer}
+            disabled={!nglLink || isComputing || !apiUrl}
+            title={
+              !apiUrl
+                ? "No backend configured (PUBLIC_HKS_API_URL not set)"
+                : !nglLink
+                  ? "Paste a Neuroglancer link first"
+                  : isComputing
+                    ? "Computing…"
+                    : "Parse Neuroglancer link and run condensed_hks_pipeline"
+            }
+            className={`ml-auto rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+              nglLink && !isComputing && apiUrl
+                ? "cursor-pointer bg-green-600 text-white hover:bg-green-500"
+                : "cursor-not-allowed bg-zinc-700 text-zinc-500"
+            }`}
+          >
+            {isComputing ? "Computing…" : "Compute HKS"}
+            {!apiUrl && (
+              <span className="ml-1.5 rounded bg-zinc-600 px-1.5 py-0.5 text-xs text-zinc-400">
+                no backend
+              </span>
+            )}
+          </button>
         )}
       </div>
+
+      {/* Neuroglancer link input — shown in neuroglancer mode */}
+      {inputMode === "neuroglancer" && (
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-zinc-400">
+            Paste a full Neuroglancer link. The backend will extract the first segmentation
+            source, the first selected segment ID, and the cursor position. The pipeline will run on the mesh region nearest to the cursor position.
+          </p>
+          <textarea
+            rows={4}
+            placeholder="https://neuroglancer-demo.appspot.com/#!..."
+            value={nglLink}
+            onChange={(e) => setNglLink(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); computeHksFromNeuroglancer(); } }}
+            className="w-full resize-y rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 font-mono text-xs text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+          />
+        </div>
+      )}
 
       {/* Cloud path inputs — shown below controls row in cloudvolume mode */}
       {inputMode === "cloudvolume" && (
         <div className="flex flex-col gap-3">
-          <p className="text-sm text-zinc-400">
-            The cloud path should be a publicly accessible cloud storage bucket that can be
-            read by Neuroglancer (e.g.{" "}
-            <span className="font-mono text-zinc-300">precomputed://gs://bucket/path</span>).
-          </p>
           <div className="flex items-center gap-2">
             <label className="whitespace-nowrap text-sm text-zinc-400">Choose a public datastack:</label>
             <select
@@ -863,6 +960,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
                   setSelectedPreset(preset.key);
                   setCloudPath(preset.cloudPath);
                   setRootId(preset.rootId);
+                  setCloudPosition(preset.position);
                 } else {
                   setSelectedPreset("");
                 }
@@ -875,21 +973,47 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
               ))}
             </select>
           </div>
-          <input
-            type="text"
-            placeholder="Cloud path (e.g. precomputed://gs://…)"
-            value={cloudPath}
-            onChange={(e) => { setCloudPath(e.target.value); setSelectedPreset(""); }}
-            className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-          />
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="Root ID"
-            value={rootId}
-            onChange={(e) => { setRootId(e.target.value.replace(/\D/g, "")); setSelectedPreset(""); }}
-            className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
-          />
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-zinc-400">
+              Cloud path — a publicly accessible Neuroglancer-compatible source URL (e.g.{" "}
+              <span className="font-mono text-zinc-300">precomputed://gs://bucket/path</span>).
+            </p>
+            <input
+              type="text"
+              placeholder="precomputed://gs://…"
+              value={cloudPath}
+              onChange={(e) => { setCloudPath(e.target.value); setSelectedPreset(""); }}
+              onKeyDown={(e) => { if (e.key === "Enter") computeHksFromCloud(); }}
+              className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-zinc-400">
+              Segment ID — the integer ID of the neuron segment to fetch and visualize.
+            </p>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="e.g. 864691135397503777"
+              value={rootId}
+              onChange={(e) => { setRootId(e.target.value.replace(/\D/g, "")); setSelectedPreset(""); }}
+              onKeyDown={(e) => { if (e.key === "Enter") computeHksFromCloud(); }}
+              className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-sm text-zinc-400">
+              Position (optional) — x, y, z coordinate (in mesh coordinates, usually nm) to select a mesh chunk to run on near that location. If blank, a random chunk is used.
+            </p>
+            <input
+              type="text"
+              placeholder="e.g. 300000, 200000, 25000"
+              value={cloudPosition}
+              onChange={(e) => setCloudPosition(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") computeHksFromCloud(); }}
+              className="w-full rounded-md border border-zinc-600 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
         </div>
       )}
 
@@ -897,14 +1021,14 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
       {hksData && colorMode === "hks" && (
         <div className="flex items-center gap-3">
           <span className="whitespace-nowrap text-sm text-zinc-400">
-            HKS timescale:{" "}
-            <span className="font-mono text-zinc-200">{selectedFeature}</span>
-            <span className="text-zinc-600"> / {hksData.nFeatures - 1}</span>
+            HKS feature:{" "}
+            <span className="font-mono text-zinc-400">{selectedFeature}</span>
+            <span className="text-zinc-600"> / {hksData.nFeatures}</span>
           </span>
           <input
             type="range"
-            min={0}
-            max={hksData.nFeatures - 1}
+            min={1}
+            max={hksData.nFeatures}
             step={1}
             value={selectedFeature}
             onChange={(e) => setSelectedFeature(Number(e.target.value))}
@@ -926,7 +1050,7 @@ export function MeshDemo({ apiUrl = "" }: { apiUrl?: string }) {
                   : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
               }`}
             >
-              HKS timescale
+              HKS feature
             </button>
             <button
               onClick={() => setColorMode("predictions")}
