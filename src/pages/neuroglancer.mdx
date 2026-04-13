@@ -7,21 +7,28 @@ mainClass: "max-w-3xl mx-auto px-6"
 
 import LinkPreview from "../components/LinkPreview.astro";
 import state5560658513887232 from "../assets/state_imgs/state_5560658513887232.png";
+import segImg from "../assets/ngl_explanations/seg-tab.png";
+import segProp from "../assets/ngl_explanations/seg-props.png";
+import segPropSelection from "../assets/ngl_explanations/seg-props-selection.png";
 import state4661635053518848 from "../assets/state_imgs/state_4661635053518848.png";
 import state6730980495720448 from "../assets/state_imgs/state_6730980495720448.png";
 import state5480005504073728 from "../assets/state_imgs/state_5480005504073728.png";
 import state5791016970878976 from "../assets/state_imgs/state_5791016970878976.png";
 import state4916101933694976 from "../assets/state_imgs/state_4916101933694976.png";
+import state5754615176888320 from "../assets/state_imgs/state_5754615176888320.png";
+import state4672168964128768 from "../assets/state_imgs/state_4672168964128768.png";
 
 # Neuroglancer Views
 
-## Authentication
+## Using Neuroglancer 
 
 If this is your first time using MICrONS, you'll need to accept the 
 [Terms of Service](https://global.daf-apis.com/sticky_auth/api/v1/tos/2/accept)
 with a Google account to be able to view these links properly. You'll then be prompted to
 sign in (make sure to use the same account) when opening one of the links below for the 
 first time in a session.
+
+Unfamiliar with Neuroglancer? More detail is available [here](https://tutorial.microns-explorer.org/neuroglancer-basic.html).
 
 ## Cell inputs
 
@@ -71,4 +78,73 @@ first time in a session.
 
 ## Navigating by cell properties
 
-(description coming soon)
+Neuroglancer's segment propoerties allow you to quickly select cells via a table of 
+properties attached to each cell. Here, we've generated a segment properties table which 
+includes information about cell type and some summary statistics about subcellular targeting
+for each cell in the curated "column" described in the paper. This allows you to quickly 
+navigate to cells of interest based on their predicted properties.
+
+### Example selections using segment properties
+
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5754615176888320"
+  title="Selection of two basket cells with the highest soma-targeting output fraction."
+  imageSrc={state5754615176888320}
+  imageAlt="Neuroglancer view of a basket cells with annotated output synapses"
+/>
+
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/4672168964128768"
+  title="Selection of two Layer 2/3 pyramidal cells with the rate of multi-input spines on their dendrites."
+  imageSrc={state4672168964128768}
+  imageAlt="Neuroglancer view of a basket cells with annotated output synapses"
+/>
+
+### Using segment properties
+To generate your own selection, access the segment properties view. Ctrl or right-click on the seg tab:
+<img src={segImg.src} alt="Neuroglancer segment properties view" />
+
+Type the name of a cell type to filter by type:
+<img src={segProp.src} alt="Neuroglancer segment properties view" />
+
+Use the sliders or type an expression to filter by cell properties. Available properties 
+include a sample of the cell-level statistics available for curated cells as described 
+in the paper. For instance, the selection above filters for the Layer 6 CT cells which 
+most target spines:
+<img src={segPropSelection.src} alt="Neuroglancer segment properties view with selection" />
+
+### Available properties
+
+Numerical properties: 
+
+| Name | Description |
+|------|-------------|
+| pre_p_spine_synapse      | Proportion of output synapses to spines            |
+| pre_p_shaft_synapse     | Proportion of outputs synapses to shaft            |
+| pre_p_soma_synapse     | Proportion of output synapses to soma            |
+| pre_p_spine_site_is_multi     | Proportion of contacted spines which are multi-input         |
+| pre_to_exc_p_spine_synapse     | Proportion of output synapses to excitatory neurons which are to spines          |
+| pre_to_exc_p_shaft_synapse     | Proportion of output synapses to excitatory neurons which are to shafts          |
+| pre_to_exc_p_soma_synapse     | Proportion of output synapses to excitatory neurons which are to somas            |
+| pre_to_exc_p_spine_site_is_multi     | Proportion of contacted spines on excitatory neuron spines which are to multi-input            |
+| post_p_spine_synapse     | Proportion of input synapses to spines            |
+| post_p_shaft_synapse     | Proportion of input synapses to shaft            |
+| post_p_soma_synapse     | Proportion of input synapses to soma            |
+| post_p_spine_site_is_multi     | Proportion of input spines which are multi-input   |
+
+Cell types:
+
+| Name | Description |
+|------|-------------|
+| 23P | Layer 2/3 intratelencephalic pyramidal neuron |
+| 4P | Layer 4 intratelencephalic pyramidal neuron |
+| 5P-IT | Layer 5 intratelencephalic pyramidal neuron |
+| 5P-ET | Layer 5 extratelencephalic pyramidal neuron |
+| 5P-NP | Layer 5 near-projecting pyramidal neuron |
+| 6P-IT | Layer 6 intratelencephalic pyramidal neuron |
+| 6P-CT | Layer 6 corticothalamic pyramidal neuron |
+| BC | Basket cell |
+| BPC | Bipolar cell |
+| MC | Martinotti cell |
+| NGC | Neurogliaform cell |
+
