@@ -1,0 +1,39 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  href: string;
+  title: string;
+  description?: string;
+  imageSrc: ImageMetadata;
+  imageAlt?: string;
+}
+
+const { href, title, description, imageSrc, imageAlt = "" } = Astro.props;
+---
+
+<div class="not-prose my-3 w-full rounded-xl border border-zinc-200 transition-all hover:border-blue-400 hover:bg-blue-50/50 hover:shadow-sm dark:border-zinc-700 dark:hover:border-blue-500 dark:hover:bg-blue-950/20">
+  <a href={href} class="group flex items-center gap-0 no-underline">
+    <div class="shrink-0 overflow-hidden rounded-l-xl">
+      <Image
+        src={imageSrc}
+        alt={imageAlt}
+        width={320}
+        height={240}
+        format="avif"
+        class="h-[240px] w-[320px] object-cover transition-transform duration-300 group-hover:scale-105"
+      />
+    </div>
+    <div class="flex min-w-0 flex-col justify-center gap-1 px-5 py-4">
+      <p class="font-semibold leading-snug text-zinc-800 dark:text-zinc-200">
+        {title}
+      </p>
+      {description && (
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
+      )}
+      <p class="mt-1 text-xs text-blue-600 transition-colors group-hover:text-blue-500 dark:text-blue-400 dark:group-hover:text-blue-300">
+        Open in Neuroglancer →
+      </p>
+    </div>
+  </a>
+</div>

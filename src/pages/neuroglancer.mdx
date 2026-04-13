@@ -5,6 +5,14 @@ description: "Neuroglancer views for exploring MICrONS HKS postsynaptic target p
 mainClass: "max-w-3xl mx-auto px-6"
 ---
 
+import LinkPreview from "../components/LinkPreview.astro";
+import state5560658513887232 from "../assets/state_imgs/state_5560658513887232.png";
+import state4661635053518848 from "../assets/state_imgs/state_4661635053518848.png";
+import state6730980495720448 from "../assets/state_imgs/state_6730980495720448.png";
+import state5480005504073728 from "../assets/state_imgs/state_5480005504073728.png";
+import state5791016970878976 from "../assets/state_imgs/state_5791016970878976.png";
+import state4916101933694976 from "../assets/state_imgs/state_4916101933694976.png";
+
 # Neuroglancer Views
 
 ## Authentication
@@ -13,30 +21,53 @@ If this is your first time using MICrONS, you'll need to accept the
 [Terms of Service](https://global.daf-apis.com/sticky_auth/api/v1/tos/2/accept)
 with a Google account to be able to view these links properly. You'll then be prompted to
 sign in (make sure to use the same account) when opening one of the links below for the 
-first time in a session. 
+first time in a session.
 
 ## Cell inputs
 
-Example layer 6 CT cell with annotated input synapses:
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5560658513887232
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5560658513887232"
+  title="Layer 6 CT cell with annotated input synapses"
+  imageSrc={state5560658513887232}
+  imageAlt="Neuroglancer view of a layer 6 CT cell with annotated input synapses"
+/>
 
-Example layer 5 ET cell with annotated input synapses: 
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5624542562091008
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/4661635053518848"
+  title="Layer 5 ET cell with annotated input synapses"
+  imageSrc={state4661635053518848}
+  imageAlt="Neuroglancer view of a layer 5 ET cell with annotated input synapses"
+/>
 
-Example basket cell with annotated input synapses: 
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/6730980495720448
-
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/6730980495720448"
+  title="Basket cell with annotated input synapses"
+  imageSrc={state6730980495720448}
+  imageAlt="Neuroglancer view of a basket cell with annotated input synapses"
+/>
 
 ## Cell outputs
 
-Example layer 4 pyramidal cell with annotated output synapses:
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5480005504073728
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5480005504073728"
+  title="Layer 4 pyramidal cell with annotated output synapses"
+  imageSrc={state5480005504073728}
+  imageAlt="Neuroglancer view of a layer 4 pyramidal cell with annotated output synapses"
+/>
 
-Example layer 5 IT pyramidal cell with annotated output synapses: 
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5791016970878976
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/5791016970878976"
+  title="Layer 5 IT pyramidal cell with annotated output synapses"
+  imageSrc={state5791016970878976}
+  imageAlt="Neuroglancer view of a layer 5 IT pyramidal cell with annotated output synapses"
+/>
 
-Example basket cell with annotated output synapses: 
-https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/4916101933694976
+<LinkPreview
+  href="https://spelunker.cave-explorer.org/#!middleauth+https://global.daf-apis.com/nglstate/api/v1/4916101933694976"
+  title="Basket cell with annotated output synapses"
+  imageSrc={state4916101933694976}
+  imageAlt="Neuroglancer view of a basket cell with annotated output synapses"
+/>
 
 ## Navigating by cell properties
 
